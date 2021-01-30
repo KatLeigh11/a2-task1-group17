@@ -2,29 +2,72 @@
 title: "salmon_group17"
 author: "Kat Leigh"
 date: "1/29/2021"
-output: html_document
+output:
+  html_document:
+    theme: darkly
+    toc: true
+    toc_float: true
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(janitor)
+library(here)
+library(lubridate)
+library(tsibble)
+library(feasts)
+library(slider)
+
 ```
 
-## R Markdown
+# A Decade of Fish Passage at the Willamette Falls Fish Ladder
+## Overview: 
+This dataset was recorded from 2001-01-01 to 2010-12-31 at the Willamette Falls fish ladder on the Willamette River in Oregon, and can be accessed from [Columbia River DART](http://www.cbr.washington.edu/dart/query/adult_graph_text) (Data Access in Real Time). It contains daily per species counts of adult fish that passed through the ladder along with water temperature measurements. This document focuses on three species (coho, jack coho, and steelhead), and explores changes over time, both seasonally and annually.
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+- An engaging image (with caption, including photo credit) that is relevant to the dataset
+- A map of the fish ladder location (you can make this in R on your own, or include an existing map appropriately licensed, with attribution)
 
-```{r cars}
-summary(cars)
+### Citation:
+
+# Main Content  {.tabset}
+## Tab 1: Original time series
+ 
+A finalized, static graph of adult passage for coho, jack coho, and steelhead salmon (you decide if these all occupy the same panel, or if they are in separate panels). Add a figure caption. Replace NA values with zero. 
+2 - 3 bulletpoints summarizing major patterns / notable trends in the salmon passage time series data
+Remember: All code that you used to wrangle the data and prepare the graphs should be available to see if we click on the Code buttons. 
+
+```{r}
+
+# get data
+fish_raw <- read.csv(here("data", "willamette_fish_passage.csv")) %>% clean_names()
+
+# select species, replace NAs, and convert dates
+three_spec <- fish_raw %>% 
+  select(date, coho, jack_coho, steelhead) %>%
+  mutate(coho = ifelse(is.na(coho), 0, coho),
+         jack_coho = ifelse(is.na(jack_coho), 0, jack_coho),
+         steelhead = ifelse(is.na(steelhead), 0, steelhead)) %>%
+  mutate(date = lubridate::mdy(date)) %>%
+  group_by(date)%>% 
+  as_tsibble(key = NULL, index = date)
+
+longer_3_spec <- pivot_longer(data= three_spec, cols= !date, names_to = "species", values_to = "count") %>%
+  ungroup() %>% 
+  as_tsibble(key = NULL, index = date)
+
+orig_time_ser <- ggplot(data = three_spec) +
+  geom_line(aes(x = date, y = sum(coho, jack_coho, steelhead))) +
+  geom_line(aes(x = date, y = coho), color = "salmon") +
+  geom_line(aes(x = date, y = jack_coho), color = "orange")+
+  geom_label(aes(x= date, y = steelhead), color = "lightblue")+
+  labs(x = "Date",
+       y = "Daily Count")
+
+orig_time_ser
+  
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
