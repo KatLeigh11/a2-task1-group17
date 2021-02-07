@@ -39,11 +39,38 @@ selectedsalmonid <- salmon %>%
 
 ```{r}
 #data wrangling for tab 3 (Teague)
-salmon_year <- selectedsalmonid %>% 
+#sum all steelhead per year 
+steelhead_year <- selectedsalmonid %>% 
   index_by(year = ~year(.)) %>% 
   summarize(annual_steelhead = sum(steelhead))
-
-ggplot(data = salmon_year, aes(x = year, y = annual_steelhead)) + 
+#visualize all steelhead per year
+ggplot(data = steelhead_year, aes(x = year, y = annual_steelhead)) + 
   geom_line()
+#sum all chinook per year
+chinook_year <- selectedsalmonid %>% 
+  index_by(year = ~year(.)) %>% 
+  summarize(annual_chinook = sum(chinook))
+#visualize all chinook per year
+ggplot(data = chinook_year, aes(x = year, y = annual_chinook)) + 
+  geom_line()
+#sum all jack coho a year
+jack_coho_year <- selectedsalmonid %>% 
+  index_by(year = ~year(.)) %>% 
+  summarize(annual_jack_coho = sum(jack_coho))
+#visualize all jack coho a year
+ggplot(data = jack_coho_year, aes(x = year, y = annual_jack_coho)) + 
+  geom_line()
+
+#merge all of the separate counts into one dataframe
+salmonid_year <-merge(steelhead_year, chinook_year, by = "year")
+#merge function only allows me to merge 2 dataframes at a time 
+total_salmonids_year <- merge(salmonid_year, jack_coho_year, by = "year")
+
+#graph all of the counts on a single plot
+ggplot(data = total_salmonids_year) + 
+  geom_line(aes(x = year, y = annual_steelhead),  color = "blue") +
+  geom_line(aes(x = year, y = annual_chinook), color = "red") +
+  geom_line(aes(x = year, y = annual_jack_coho), color = "dark green") 
+  
 ```
 
