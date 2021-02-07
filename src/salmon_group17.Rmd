@@ -8,11 +8,25 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
+#load packages to wrangle salmon data 
+
+library(tidyverse)
+library(here)
+library(janitor)
+library(lubridate)
+library(tsibble)
+library(feasts)
+library(slider)
+
+#read in data for all of statistics and visualizations
+salmon <- read_csv(here("data", "willamette_fish_passage.csv"))
 ```
 
-# title
+```{r}
+#data wrangling to get species done
+selectedsalmonid <- salmon %>% 
+  select("Project", "Date", "Chinook", "Jack Chinook", "Steelhead", "TempC")
+```
 
-## header 2
-
-body
