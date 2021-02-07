@@ -2,31 +2,139 @@
 title: "salmon_group17"
 author: "Kat Leigh, Teague Tran, Lucas Empson"
 date: "1/29/2021"
-output: 
+output:
   html_document:
-    css: "style.css"
+    theme: darkly
+    toc: true
+    toc_float: true
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
-
-#load packages to wrangle salmon data 
+knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
-library(here)
 library(janitor)
+library(here)
 library(lubridate)
 library(tsibble)
 library(feasts)
 library(slider)
+library(ggtext)
+library(scales)
 
-#read in data for all of statistics and visualizations
-salmon <- read_csv(here("data", "willamette_fish_passage.csv"))
 ```
+
+# A Decade of Fish Passage at the Willamette Falls Fish Ladder
+## Overview: 
+This dataset was recorded from 2001-01-01 to 2010-12-31 at the Willamette Falls fish ladder on the Willamette River in Oregon, and can be accessed from [Columbia River DART](http://www.cbr.washington.edu/dart/query/adult_graph_text) (Data Access in Real Time). It contains daily per species counts of adult fish that passed through the ladder along with water temperature measurements. This document focuses on three species (coho, jack coho, and steelhead), and explores changes over time, both seasonally and annually.
+
+
+- An engaging image (with caption, including photo credit) that is relevant to the dataset
+- A map of the fish ladder location (you can make this in R on your own, or include an existing map appropriately licensed, with attribution)
+
+### Citation:
+
+# Main Content  {.tabset}
+## Tab 1: Original time series
 
 ```{r}
-#data wrangling to get species done
-selectedsalmonid <- salmon %>% 
-  select("Project", "Date", "Chinook", "Jack Chinook", "Steelhead", "TempC")
+
+# get data
+fish_raw <- read.csv(here("data", "willamette_fish_passage.csv")) %>% clean_names()
+
+# select species, replace NAs, and convert dates
+three_spec <- fish_raw %>% 
+  select(date, coho, jack_coho, steelhead) %>%
+  mutate(coho = ifelse(is.na(coho), 0, coho),
+         jack_coho = ifelse(is.na(jack_coho), 0, jack_coho),
+         steelhead = ifelse(is.na(steelhead), 0, steelhead)) %>%
+  mutate(date = lubridate::mdy(date)) %>%
+  group_by(date)%>% 
+  as_tsibble(key = NULL, index = date)
+
+# put species into 1 column
+longer_3_spec <- three_spec %>%
+  select(date, coho, jack_coho, steelhead) %>%
+  gather(key = "Species", value = "count", -date) %>%
+  mutate(Species = ifelse(Species == "coho", "Coho",
+                          ifelse(Species == "jack_coho", "Coho Jack",
+                                 ifelse(Species == "steelhead", "Steelhead", 0)))) %>% 
+  mutate(Species = as.factor(Species)) %>%
+  ungroup()
+  
+
+# plot the data with 3 facets
+graph_3_spec <- ggplot(longer_3_spec, aes(x = date, y = count)) + 
+  geom_line(aes(color = Species)) + 
+  scale_color_manual(values = c("darkred", "goldenrod", "salmon"))+
+  theme_minimal()+
+  facet_wrap(~Species, ncol = 1)+
+  labs(title = "Daily counts of adult fish at the Willamette Falls fish ladder\n in Oregon between 2001 and 2010",
+       caption = "Two species depicted *Oncorhynchus kisutch* (Coho and Jack coho), and *Oncorhynchus mykiss* (Steelhead). Note: 'jack' refers to precotial males that have spent one winter less in the ocean than the youngest females. Coho jacks return to spawn the same year they smolted.",
+       x= "Year",
+       y= "Counts")+
+  theme(plot.caption = element_textbox_simple(vjust = 1.5))
+
+graph_3_spec
+
 ```
+
+- all categories show seasonality, with Jack coho closely mirroring (with smaller maximums) the patterns of Coho.
+- Coho salmon counts reached a larger maximum than Jack coho or Steelhead, and grew markedly in years 2009 and 2010.
+- average Steelhead counts generally exceed that of Coho and Jack coho.
+
+
+
+
+
+## Tab 3: Summary statistics and analysis
+
+```{r}
+#select species, replace NAs and convert dates without messing with my partners' information
+salmonids <- fish_raw %>% 
+  select(date, coho, jack_coho, steelhead) %>%
+  mutate(coho = ifelse(is.na(coho), 0, coho),
+         jack_coho = ifelse(is.na(jack_coho), 0, jack_coho),
+         steelhead = ifelse(is.na(steelhead), 0, steelhead)) %>%
+  mutate(date = lubridate::mdy(date)) %>%
+  group_by(date)%>% 
+  as_tsibble(key = NULL, index = date)
+
+#put all fish into one column
+total_salmonids <- salmonids %>%
+  select(date, coho, jack_coho, steelhead) %>%
+  gather(key = "Species", value = "count", -date) %>%
+  mutate(Species = ifelse(Species == "coho", "Coho",
+                          ifelse(Species == "jack_coho", "Coho Jack",
+                                 ifelse(Species == "steelhead", "Steelhead", 0)))) %>% 
+  mutate(Species = as.factor(Species)) %>%
+  ungroup()
+```
+```{r}
+#group by species, index by years to be able to input data into graph
+
+salmonids_year <- total_salmonids %>% 
+  group_by(Species) %>% 
+  index_by(year = ~year(.)) %>% 
+  summarize(annual_count = sum(count))
+```
+```{r}
+annual_salmonids_graph <- ggplot(data = salmonids_year, aes(x = year, y = annual_count, color = Species)) + 
+  geom_line(size = 1.5) +
+  scale_color_manual(values = c("darkred", "goldenrod", "salmon")) + 
+  labs(x = "Year", y = "Annual Count (# fish)", title = "Annual count of adult fish at Willamette Falls (Oregon) fish ladder (2001-2010)" ) +
+  theme_minimal()+
+  scale_x_continuous(breaks = pretty_breaks( n = 5))
+  
+annual_salmonids_graph
+```
+
+Figure 3: Total counts of fish passages of *Oncorhynchus kisutch* (Coho and Jack coho), and *Oncorhynchus mykiss* Note: 'jack' refers to precotial males that have spent one winter less in the ocean than the youngest females. Coho jacks return to spawn the same year they smolted.
+
+- Steelhead annual passage counts have declined since 2001 
+- Coho annual passage counts have increased since 2001
+- Coho Jack counts have been relatively low and constant compare to adult, non-jack Coho and Steelhead
+
+
 
