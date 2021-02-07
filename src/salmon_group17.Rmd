@@ -21,12 +21,29 @@ library(feasts)
 library(slider)
 
 #read in data for all of statistics and visualizations
-salmon <- read_csv(here("data", "willamette_fish_passage.csv"))
+salmon <- read_csv(here("data", "willamette_fish_passage.csv")) %>% 
+  # clean up column names to make data wrangling easier
+  clean_names()
+  #replace NAs with 0
+salmon[is.na(salmon)] = 0
+
+```
+
+```{r, message = FALSE, warning = FALSE}
+#data wrangling to select species and get dates
+selectedsalmonid <- salmon %>% 
+  select("project", "date", "chinook", "jack_coho", "steelhead") %>% 
+  mutate(new_date = mdy(date)) %>% 
+  as_tsibble(key = NULL, index = new_date)
 ```
 
 ```{r}
-#data wrangling to get species done
-selectedsalmonid <- salmon %>% 
-  select("Project", "Date", "Chinook", "Jack Chinook", "Steelhead", "TempC")
+#data wrangling for tab 3 (Teague)
+salmon_year <- selectedsalmonid %>% 
+  index_by(year = ~year(.)) %>% 
+  summarize(annual_steelhead = sum(steelhead))
+
+ggplot(data = salmon_year, aes(x = year, y = annual_steelhead)) + 
+  geom_line()
 ```
 
