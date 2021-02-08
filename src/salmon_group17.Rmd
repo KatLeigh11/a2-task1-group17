@@ -133,7 +133,7 @@ annual_salmonids_graph
 ```
 
 
-Total counts of fish passages of *Oncorhynchus kisutch* (Coho and Jack coho), and *Oncorhynchus mykiss* Note: 'jack' refers to precotial males that have spent one winter less in the ocean than the youngest females. Coho jacks return to spawn the same year they smolted.
+Total counts of fish passages of *Oncorhynchus kisutch* (Coho and Jack coho), and *Oncorhynchus mykiss* (Steelhead). Note: 'jack' refers to precotial males that have spent one winter less in the ocean than the youngest females. Coho jacks return to spawn the same year they smolted.
 
 - Steelhead annual passage counts have declined since 2001 (declining trend) 
 - Coho annual passage counts have increased since 2001 (inclining trend)
