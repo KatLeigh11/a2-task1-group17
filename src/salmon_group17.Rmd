@@ -129,6 +129,7 @@ annual_salmonids_graph <- ggplot(data = salmonids_year, aes(x = year, y = annual
   theme_minimal()+
   scale_x_continuous(breaks = pretty_breaks( n = 5))
 #display graph 
+
 annual_salmonids_graph
 ```
 
@@ -138,6 +139,7 @@ Total counts of fish passages of *Oncorhynchus kisutch* (Coho and Jack coho), an
 - Steelhead annual passage counts have declined since 2001 (declining trend) 
 - Coho annual passage counts have increased since 2001 (inclining trend)
 - Coho Jack counts have been relatively low and constant compare to adult, non-jack Coho and Steelhead
+
 
 
 
