@@ -35,7 +35,6 @@ This dataset was recorded from 2001-01-01 to 2010-12-31 at the Willamette Falls 
 ![Map of Willamette Falls within Oregon City, OR.
 (Source: [U.S. Army Corp. of Engineers](https://www.nwp.usace.army.mil/willamette/locks/))](willamette_falls_map.png)
 
-### Citation:
 
 # Main Content  {.tabset}
 ## Tab 1: Original time series
