@@ -32,8 +32,8 @@ This dataset was recorded from 2001-01-01 to 2010-12-31 at the Willamette Falls 
 ![Image of Willamette Falls
 (Source: [Metro Council](https://www.oregonmetro.gov/))](https://www.oregonmetro.gov/sites/default/files/styles/content/public/media/falls.jpg?itok=hHqUtmo3)
 
-- An engaging image (with caption, including photo credit) that is relevant to the dataset
-- A map of the fish ladder location (you can make this in R on your own, or include an existing map appropriately licensed, with attribution)
+![Map of Willamette Falls within Oregon City, OR.
+(Source: [U.S. Army Corp. of Engineers](https://www.nwp.usace.army.mil/willamette/locks/))](willamette_falls_map.png)
 
 ### Citation:
 
