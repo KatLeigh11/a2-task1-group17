@@ -88,7 +88,35 @@ Two species depicted *Oncorhynchus kisutch* (Coho and Jack coho), and *Oncorhync
 - average Steelhead counts generally exceed that of Coho and Jack coho.
 
 
+## Tab 2:
+A finalized seasonplot for each species (coho, jack coho, steelhead). You can either
+facet, or use patchwork, to make the figure. Add a caption.
+● Add 2 - 3 bulletpoints summarizing the major trends you see in the seasonplots.
+● Remember: All code that you used to wrangle the data and prepare the graphs should
+be available to see if we click on the Code buttons.
 
+```{r}
+
+salmon_ts <- fish_raw %>% 
+  select(project, date, coho, jack_coho, steelhead) %>% 
+  mutate(date = lubridate::mdy(date)) %>% 
+  as_tsibble(key = NULL, index = date)
+
+salmon_monthly <- salmon_ts %>% 
+  index_by(yr_mo = ~yearmonth(.)) %>% 
+  summarize(monthly_coho = sum(coho, na.rm =TRUE), 
+            monthly_jack_coho = sum(jack_coho, na.rm =TRUE), 
+            monthly_steelhead = sum(steelhead, na.rm =TRUE)) %>% 
+  gather("species", "monthly_total", -yr_mo)
+
+# ggplot(data = salmon_monthly, aes(x = yr_mo, y = monthly_total, color = species)) +
+#   geom_line() + 
+#   facet_wrap(~month(yr_mo, label = TRUE))  
+salmon_monthly %>% 
+  gg_season(y = monthly_total) +
+    theme_minimal() +
+  labs(x = "Month", y = "Number of fish")
+```
 
 
 ## Tab 3: Summary statistics and analysis
