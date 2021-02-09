@@ -22,7 +22,7 @@ library(feasts)
 library(slider)
 library(ggtext)
 library(scales)
-
+library(ggsci)
 ```
 
 # A Decade of Fish Passage at the Willamette Falls Fish Ladder
@@ -88,36 +88,34 @@ Two species depicted *Oncorhynchus kisutch* (Coho and Jack coho), and *Oncorhync
 - average Steelhead counts generally exceed that of Coho and Jack coho.
 
 
-## Tab 2:
-A finalized seasonplot for each species (coho, jack coho, steelhead). You can either
-facet, or use patchwork, to make the figure. Add a caption.
-● Add 2 - 3 bulletpoints summarizing the major trends you see in the seasonplots.
-● Remember: All code that you used to wrangle the data and prepare the graphs should
-be available to see if we click on the Code buttons.
+## Tab 2: Seasonplots
 
-```{r}
-
+```{r, warning = FALSE, fig.cap = "Figure 2. Monthly counts of *Oncorhynchus kisutch* (Coho and Jack Coho), and *Oncorhynchus mykiss* (Steelhead) at Willamette Falls, OR from 2001-2010. Data: Columbia River DART (Data Access in Real Time)."}
+# Select Coho, Jack Coho, and Steelhead from fish data set; convert date to date with 'mdy' format; convert data frame to tsibble
 salmon_ts <- fish_raw %>% 
   select(project, date, coho, jack_coho, steelhead) %>% 
   mutate(date = lubridate::mdy(date)) %>% 
   as_tsibble(key = NULL, index = date)
 
+
+# `index_by()` to aggregate by year/month; calculate total count by species, per time increment
 salmon_monthly <- salmon_ts %>% 
   index_by(yr_mo = ~yearmonth(.)) %>% 
-  summarize(monthly_coho = sum(coho, na.rm =TRUE), 
-            monthly_jack_coho = sum(jack_coho, na.rm =TRUE), 
-            monthly_steelhead = sum(steelhead, na.rm =TRUE)) %>% 
+  summarize(Coho = sum(coho, na.rm =TRUE), 
+            "Jack Coho" = sum(jack_coho, na.rm =TRUE), 
+            Steelhead = sum(steelhead, na.rm =TRUE)) %>% 
   gather("species", "monthly_total", -yr_mo)
 
-# ggplot(data = salmon_monthly, aes(x = yr_mo, y = monthly_total, color = species)) +
-#   geom_line() + 
-#   facet_wrap(~month(yr_mo, label = TRUE))  
+# Seasonplot of monthly counts by year for Coho, Jack Coho, and Steelhead
 salmon_monthly %>% 
-  gg_season(y = monthly_total) +
+  gg_season(y = monthly_total, pal = pal_npg()(10)) +
     theme_minimal() +
-  labs(x = "Month", y = "Number of fish")
+  labs(x = "Month", y = "Number of fish", title = "Monthly counts of adult fish at Willamette Falls, OR\n for years 2001-2010") 
 ```
 
+
+- Coho and Jack Coho show very similar seasonality, with greatest observed adult fish counts generally occuring in September
+- Adult Steelhead counts are greatest during Spring (March-June)
 
 ## Tab 3: Summary statistics and analysis
 
