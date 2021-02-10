@@ -35,12 +35,11 @@ This dataset was recorded from 2001-01-01 to 2010-12-31 at the Willamette Falls 
 ![Map of Willamette Falls within Oregon City, OR.
 (Source: [U.S. Army Corp. of Engineers](https://www.nwp.usace.army.mil/willamette/locks/))](willamette_falls_map.png)
 
-### Citation:
 
 # Main Content  {.tabset}
 ## Tab 1: Original time series
 
-```{r}
+```{r, warning = FALSE, message = FALSE, fig.cap = "Figure 1. Two species depicted *Oncorhynchus kisutch* (Coho and Jack coho), and *Oncorhynchus mykiss* (Steelhead). Note: 'jack' refers to precotial males that have spent one winter less in the ocean than the youngest females. Coho jacks return to spawn the same year they smolted."}
 
 # get data
 fish_raw <- read.csv(here("data", "willamette_fish_passage.csv")) %>% clean_names()
@@ -81,7 +80,6 @@ graph_3_spec
 
 ```
 
-Two species depicted *Oncorhynchus kisutch* (Coho and Jack coho), and *Oncorhynchus mykiss* (Steelhead). Note: 'jack' refers to precotial males that have spent one winter less in the ocean than the youngest females. Coho jacks return to spawn the same year they smolted.
 
 - all categories show seasonality, with Jack coho closely mirroring (with smaller maximums) the patterns of Coho.
 - Coho salmon counts reached a larger maximum than Jack coho or Steelhead, and grew markedly in years 2009 and 2010.
@@ -119,7 +117,7 @@ salmon_monthly %>%
 
 ## Tab 3: Summary statistics and analysis
 
-```{r}
+```{r, warning = FALSE, message = FALSE, fig.cap = "Figure 3. Total counts of fish passages of *Oncorhynchus kisutch* (Coho and Jack coho), and *Oncorhynchus mykiss* (Steelhead). Note: 'jack' refers to precotial males that have spent one winter less in the ocean than the youngest females. Coho jacks return to spawn the same year they smolted."}
 #select species, replace NAs and convert dates without messing with my partners' information
 salmonids <- fish_raw %>% 
   select(date, coho, jack_coho, steelhead) %>%
@@ -158,9 +156,6 @@ annual_salmonids_graph <- ggplot(data = salmonids_year, aes(x = year, y = annual
 
 annual_salmonids_graph
 ```
-
-
-Total counts of fish passages of *Oncorhynchus kisutch* (Coho and Jack coho), and *Oncorhynchus mykiss* (Steelhead). Note: 'jack' refers to precotial males that have spent one winter less in the ocean than the youngest females. Coho jacks return to spawn the same year they smolted.
 
 - Steelhead annual passage counts have declined since 2001 (declining trend) 
 - Coho annual passage counts have increased since 2001 (inclining trend)
